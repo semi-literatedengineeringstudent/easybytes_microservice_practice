@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: "configserver"
+  profiles:
+    active: git
+  #active: native #when use class path or file path location where files are saved locally
+  cloud:
+    config:
+      server:
+        git:
+          uri: "https://github.com/eazybytes/eazybytes-config.git"
+          default-label: main
+          timeout: 10
+          clone-on-start: true
+          force-pull: true
+        #native:
+          #search-locations: "file:///Users//yuduc2//Desktop//config" #for local file access we just use absolute path
+          #search-locations: "classpath:/config" #relative path if files are saved in a folder easily accessible from application.yml
+        #git:
+          # git:
+          #uri: "https://github.com/eazybytes/eazybytes-config.git"
+          #default-label: main # use main branch
+          #timeout: 5 # if connectiion to git repo fails after 5 seconds, stop
+          #clone-on-start: true #copy github repo everytime when connected, if false, will only clone first time when no config file is cloned to local
+          #force-pull: true # we might have local change. When we pull, we just forcifully override local change from what are pulled
+
+
+  rabbitmq:
+    host: "localhost"
+    port: 5672
+    username: "guest"
+    password: "guest"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+server:
+  port: 8071
+
+encrypt:
+  key: "6e5896be1b32fb3e539a64de661825ab91492db2457912e45b9a71962f3186fe" #this key will be used to encrypt info

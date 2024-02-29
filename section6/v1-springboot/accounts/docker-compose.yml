@@ -1,0 +1,38 @@
+services:
+  accounts:
+    image: "yuduc2/accounts:s4"
+    container_name: "accounts-ms" #if not provided, docker will give a random name to the container
+    ports:
+      - "8080:8080" # we can create multiple port mapping
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - yuduc2
+  loans:
+    image: "yuduc2/loans:s4"
+    container_name: "loans-ms" #if not provided, docker will give a random name to the container
+    ports:
+      - "8090:8090" # we can create multiple port mapping
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - yuduc2
+  cards:
+    image: "yuduc2/cards:s4"
+    container_name: "cards-ms" #if not provided, docker will give a random name to the container
+    ports:
+      - "9000:9000" # we can create multiple port mapping
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - yuduc2
+
+networks:
+  yuduc2:
+    driver: "bridge"

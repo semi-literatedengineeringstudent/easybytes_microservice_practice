@@ -1,0 +1,73 @@
+services:
+  rabbit:
+    image: rabbitmq:3.12-management
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
+  configserver:
+    image: "yuduc2/configserver:s6"
+    container_name: configserver-ms #if not provided, docker will give a random name to the container
+    ports:
+      - "8071:8071" # we can create multiple port mapping
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s # execute test command after 10s(start period), do retry 10 times, with interval of 10 sec, in each check wait max for 5 seconds
+    extends:
+      file: common-config.yml
+      service: microservice-base-config
+
+  accounts:
+    image: "yuduc2/accounts:s6"
+    container_name: accounts-ms #if not provided, docker will give a random name to the container
+    ports:
+      - "8080:8080" # we can create multiple port mapping
+    environment:
+      SPRING_APPLICATION_NAME: "accounts"
+    extends:
+      file: common-config.yml
+      service: microservice-configserver-config
+
+
+  loans:
+    image: "yuduc2/loans:s6"
+    container_name: loans-ms #if not provided, docker will give a random name to the container
+    ports:
+      - "8090:8090" # we can create multiple port mapping
+    environment:
+      SPRING_APPLICATION_NAME: "loans"
+    extends:
+      file: common-config.yml
+      service: microservice-configserver-config
+
+
+  cards:
+    image: "yuduc2/cards:s6"
+    container_name: cards-ms #if not provided, docker will give a random name to the container
+    ports:
+      - "9000:9000" # we can create multiple port mapping
+    environment:
+      SPRING_APPLICATION_NAME: "cards"
+    extends:
+      file: common-config.yml
+      service: microservice-configserver-config
+
+networks:
+  yuduc2:
+    driver: "bridge"
